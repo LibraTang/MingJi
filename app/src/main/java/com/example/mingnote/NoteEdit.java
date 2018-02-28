@@ -48,47 +48,21 @@ public class NoteEdit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editnote);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_edit);
-        Button camera = (Button)findViewById(R.id.camera);
-        picture = (ImageView)findViewById(R.id.picture);
+        picture = (ImageView) findViewById(R.id.picture);
         setSupportActionBar(toolbar);
         InitView();
-
-        camera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //创建File对象，用于存储拍照后的图片
-                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-                try {
-                    if(outputImage.exists()){
-                        outputImage.delete();
-                    }
-                    outputImage.createNewFile();
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                if(Build.VERSION.SDK_INT >= 24){
-                    imageUri = FileProvider.getUriForFile(NoteEdit.this, "com.example.cameraalbumtest.fileprovider", outputImage);
-                }else{
-                    imageUri = Uri.fromFile(outputImage);
-                }
-                //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, TAKE_PHOTO);
-            }
-        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode){
+        switch (requestCode) {
             case TAKE_PHOTO:
-                if(resultCode == RESULT_OK){
-                    try{
+                if (resultCode == RESULT_OK) {
+                    try {
                         //将拍摄的照片显示出来
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         picture.setImageBitmap(bitmap);
-                    }catch(FileNotFoundException e){
+                    } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
@@ -127,9 +101,9 @@ public class NoteEdit extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 String dateString = sdf.format(date);
                 Bundle data = new Bundle();
-                data.putString("nei",content);
-                Intent intent = new Intent(NoteEdit.this,Display.class);
-                intent.putExtra("neirong",data);
+                data.putString("nei", content);
+                Intent intent = new Intent(NoteEdit.this, Display.class);
+                intent.putExtra("neirong", data);
                 ContentValues values = new ContentValues();
                 values.put("content", content);
                 values.put("date", dateString);
@@ -164,7 +138,24 @@ public class NoteEdit extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.camera:
-
+                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+                try {
+                    if (outputImage.exists()) {
+                        outputImage.delete();
+                    }
+                    outputImage.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (Build.VERSION.SDK_INT >= 24) {
+                    imageUri = FileProvider.getUriForFile(NoteEdit.this, "com.example.cameraalbumtest.fileprovider", outputImage);
+                } else {
+                    imageUri = Uri.fromFile(outputImage);
+                }
+                //启动相机程序
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intent, TAKE_PHOTO);
         }
     }
 }
