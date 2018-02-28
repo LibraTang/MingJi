@@ -8,9 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -19,47 +21,82 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static android.R.attr.bitmap;
+import static android.R.attr.switchMinWidth;
 
 public class NoteEdit extends AppCompatActivity {
     private EditText edit_content;
     private Database DBHelper;
     public int enter_state = 0;//用来区分是新建一个note还是更改原来的note
     public String last_content;//用来获取edittext内容
+    public static final int TAKE_PHOTO = 1;
+    private ImageView picture;
+    private Uri imageUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editnote);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_edit);
+        Button camera = (Button)findViewById(R.id.camera);
+        picture = (ImageView)findViewById(R.id.picture);
         setSupportActionBar(toolbar);
         InitView();
 
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //创建File对象，用于存储拍照后的图片
+                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+                try {
+                    if(outputImage.exists()){
+                        outputImage.delete();
+                    }
+                    outputImage.createNewFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                if(Build.VERSION.SDK_INT >= 24){
+                    imageUri = FileProvider.getUriForFile(NoteEdit.this, "com.example.cameraalbumtest.fileprovider", outputImage);
+                }else{
+                    imageUri = Uri.fromFile(outputImage);
+                }
+                //启动相机程序
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intent, TAKE_PHOTO);
+            }
+        });
     }
 
-//    private Bitmap resizeImage(Bitmap bitmap, int wid, int hei)
-//    //压缩位图
-//    {
-//        Bitmap BitmapOrg = bitmap;
-//        int width = BitmapOrg.getWidth();
-//        int height = BitmapOrg.getHeight();
-//        int newWidth = wid;
-//        int newHeight = hei;
-//
-//        float scaleWidth = ((float) newWidth) / width;
-//        float scaleHeight = ((float) newHeight) / height;
-//
-//        Matrix matrix = new Matrix();
-//        matrix.postScale(scaleWidth, scaleHeight);
-//
-//        Bitmap resizeBipmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width, height, matrix, true);
-//
-//        return resizeBipmap;
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode){
+            case TAKE_PHOTO:
+                if(resultCode == RESULT_OK){
+                    try{
+                        //将拍摄的照片显示出来
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                        picture.setImageBitmap(bitmap);
+                    }catch(FileNotFoundException e){
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
     private void InitView() {
         edit_content = (EditText) findViewById(R.id.edit_content);
@@ -107,67 +144,6 @@ public class NoteEdit extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.action_paint:
-//                Intent getImage = new Intent(Intent.ACTION_PICK, null);//从文件管理器中取得数据
-//                getImage.addCategory(Intent.CATEGORY_OPENABLE);//增加一个可以解析的分类
-//                getImage.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");//取照片
-//                getImage.setAction(Intent.ACTION_GET_CONTENT);
-//                startActivityForResult(getImage, 1);
-//                break;
-//        }
-//        return true;
-//    }
-//
-//    protected void onActivityResult(int requestCode, int resultCode,
-//                                    Intent intent) {
-//        // TODO Auto-generated method stub
-//        super.onActivityResult(requestCode, resultCode, intent);
-//        ContentResolver resolver = getContentResolver();//解析
-//        if (resultCode == RESULT_OK) {
-//            if (requestCode == 1) {
-//                Uri originalUri = intent.getData();
-//                try {
-//                    Bitmap originalBitmap = BitmapFactory.decodeStream(resolver
-//                            .openInputStream(originalUri));
-//                    Bitmap bitmap = resizeImage(originalBitmap, 100, 100);
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//                edit_content = (EditText) findViewById(R.id.edit_content);
-//                insertIntoEditText(getBitmapMime(bitmap, originalUri));
-//            }
-//        }
-//    }
-//
-//    private SpannableString getBitmapMime(int pic, Uri uri)
-//    //获取bitmap的mime类型
-//    {
-//        String path = uri.getPath();
-//        SpannableString ss = new SpannableString(path);
-//        ImageSpan span = new ImageSpan(this, pic);
-//        ss.setSpan(span, 0, path.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);//插入对象，起始位置，终止位置，标记
-//        return ss;
-//    }
-//
-//    private void insertIntoEditText(SpannableString ss)
-//    //插入图片
-//    {
-//        Editable et = edit_content.getText();// 先获取Edittext中的内容
-//        int start = edit_content.getSelectionStart();
-//        et.insert(start, ss);// 设置ss要添加的位置
-//        edit_content.setText(et);// 把et添加到Edittext中
-//        edit_content.setSelection(start + ss.length());// 设置Edittext中光标在最后面显示
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -176,5 +152,19 @@ public class NoteEdit extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.camera:
+
+        }
     }
 }
