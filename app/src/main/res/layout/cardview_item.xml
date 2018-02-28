@@ -12,7 +12,7 @@
         android:layout_marginTop="2dp"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp"
-        app:cardElevation="4dp"
+        app:cardElevation="3dp"
         app:cardUseCompatPadding="true"
         android:foreground="?attr/selectableItemBackground"
         >
