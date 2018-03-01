@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -42,6 +43,7 @@ public class NoteEdit extends AppCompatActivity {
     public static final int TAKE_PHOTO = 1;
     private ImageView picture;
     private Uri imageUri;
+    private FloatingActionButton fab_camera;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,28 +55,29 @@ public class NoteEdit extends AppCompatActivity {
         InitView();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case TAKE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    try {
-                        //将拍摄的照片显示出来
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                        picture.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        switch (requestCode) {
+//            case TAKE_PHOTO:
+//                if (resultCode == RESULT_OK) {
+//                    try {
+//                        //将拍摄的照片显示出来
+//                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+//                        picture.setImageBitmap(bitmap);
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
     private void InitView() {
         edit_content = (EditText) findViewById(R.id.edit_content);
         DBHelper = new Database(this);
+        fab_camera = (FloatingActionButton)findViewById(R.id.fab_camera);
 
         //获取此时时刻时间
         Date date = new Date();
@@ -134,28 +137,30 @@ public class NoteEdit extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.camera:
-                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-                try {
-                    if (outputImage.exists()) {
-                        outputImage.delete();
-                    }
-                    outputImage.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (Build.VERSION.SDK_INT >= 24) {
-                    imageUri = FileProvider.getUriForFile(NoteEdit.this, "com.example.cameraalbumtest.fileprovider", outputImage);
-                } else {
-                    imageUri = Uri.fromFile(outputImage);
-                }
-                //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, TAKE_PHOTO);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.camera:
+//                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+//                try {
+//                    if (outputImage.exists()) {
+//                        outputImage.delete();
+//                    }
+//                    outputImage.createNewFile();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                if (Build.VERSION.SDK_INT >= 24) {
+//                    imageUri = FileProvider.getUriForFile(NoteEdit.this, "com.example.cameraalbumtest.fileprovider", outputImage);
+//                } else {
+//                    imageUri = Uri.fromFile(outputImage);
+//                }
+//                //启动相机程序
+//                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//                startActivityForResult(intent, TAKE_PHOTO);
+//        }
+//
+//        return true;
+//    }
 }
