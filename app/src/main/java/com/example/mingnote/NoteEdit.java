@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -92,10 +93,11 @@ public class NoteEdit extends AppCompatActivity {
         });
 
         fab_photo.setOnClickListener(new View.OnClickListener(){
+
             @Override
             public void onClick(View v) {
-                if(ContextCompat.checkSelfPermission(NoteEdit.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    AppCompatActivity.requestPermissions(NoteEdit.this, new String[]{Manifest.permisssion.WRITE_EXTERNAL_STORAGE}, 1);
+                if(ContextCompat.checkSelfPermission(NoteEdit.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(NoteEdit.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 }else{
                     openAlbum();
                 }
