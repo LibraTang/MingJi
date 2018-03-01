@@ -49,9 +49,18 @@
         android:id="@+id/fab_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:elevation="5dp"
         app:srcCompat="@mipmap/c9ec3f73e4564d67e7d6df7d92d5d27" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="@dimen/fab_margin"
+        app:elevation="5dp"
+        app:srcCompat="@drawable/ic_menu_gallery" />
 
 </android.support.design.widget.CoordinatorLayout>
